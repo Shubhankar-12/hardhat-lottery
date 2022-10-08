@@ -12,7 +12,7 @@ error Raffle__UpkeepNotNeeded(
   uint256 numPlayers,
   uint256 raffleState
 );
-error Raffle__NotEnoughEthEntered();
+error Raffle__NotEnoughETHEntered();
 error Raffle__TransferFailed();
 error Raffle__RaffleNotOpen();
 
@@ -70,7 +70,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
   function enterRaffle() public payable {
     if (msg.value < i_enteranceFee) {
-      revert Raffle__NotEnoughEthEntered();
+      revert Raffle__NotEnoughETHEntered();
     }
     if (s_raffleState != RaffleState.OPEN) {
       revert Raffle__RaffleNotOpen();
@@ -92,7 +92,6 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     bytes memory /*checkData*/
   )
     public
-    view
     override
     returns (
       bool upkeepNeeded,
@@ -174,5 +173,13 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
   function getRaffleState() public view returns (RaffleState) {
     return s_raffleState;
+  }
+
+  function getInterval() public view returns (uint256) {
+    return i_interval;
+  }
+
+  function getSubscriptionId() public view returns (uint64) {
+    return i_subscriptionId;
   }
 }

@@ -180,9 +180,8 @@ const {
                 assert.equal(
                   winnerEndingBalance.toString(),
                   winnerStartBalance
-                    .add(
-                      enteranceFee.mul(additionalEnterance).add(enteranceFee)
-                    )
+                    .add(enteranceFee.mul(additionalEnterance))
+                    .add(enteranceFee)
                     .toString()
                 );
                 resolve();

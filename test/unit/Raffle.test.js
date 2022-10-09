@@ -147,8 +147,56 @@ const {
           ).to.be.revertedWith("nonexistent request");
         });
         // Way to big
-        // it("picks a winner,reset the lottery and send the money",async()=>{
-
-        // })
+        it("picks a winner,reset the lottery and send the money", async () => {
+          const additionalEnterance = 3;
+          const startingAccountIndex = 1; // deployer 0
+          const accounts = await ethers.getSigners();
+          const winnerStartBalance = await accounts[1].getBalance();
+          for (
+            let i = startingAccountIndex;
+            i < startingAccountIndex + additionalEnterance;
+            i++
+          ) {
+            const accountConnectedRaffle = raffle.connect(accounts[i]);
+            await accountConnectedRaffle.enterRaffle({ value: enteranceFee });
+          }
+          const startingTimeStamp = await raffle.getLatestTimeStamp();
+          await new Promise(async (resolve, reject) => {
+            raffle.once("WinnerPicked", async () => {
+              try {
+                const recentWinner = await raffle.getRecentWinner();
+                console.log(recentWinner);
+                console.log(accounts[2].address);
+                console.log(accounts[0].address);
+                console.log(accounts[1].address);
+                console.log(accounts[3].address);
+                const raffleState = await raffle.getRaffleState();
+                const endingTimeStamp = await raffle.getLatestTimeStamp();
+                const numPlayers = await raffle.getNumOfPlayers();
+                const winnerEndingBalance = await accounts[1].getBalance();
+                assert.equal(numPlayers.toString(), "0");
+                assert.equal(raffleState.toString(), "0");
+                assert(endingTimeStamp > startingTimeStamp);
+                assert.equal(
+                  winnerEndingBalance.toString(),
+                  winnerStartBalance
+                    .add(
+                      enteranceFee.mul(additionalEnterance).add(enteranceFee)
+                    )
+                    .toString()
+                );
+                resolve();
+              } catch (err) {
+                reject(err);
+              }
+            });
+            const tx = await raffle.performUpkeep([]);
+            const txReciept = await tx.wait(1);
+            await vrfcoordinatorV2Mock.fulfillRandomWords(
+              txReciept.events[1].args.requestId,
+              raffle.address
+            );
+          });
+        });
       });
     });

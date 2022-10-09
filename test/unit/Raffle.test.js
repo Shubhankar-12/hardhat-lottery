@@ -69,5 +69,18 @@ const {
           const { upkeepNeeded } = await raffle.callStatic.checkUpkeep([]);
           assert(!upkeepNeeded);
         });
+        it("returns false if raffle isn't open", async () => {
+          await raffle.enterRaffle({ value: enteranceFee });
+          await network.provider.send("evm_increaseTime", [
+            interval.toNumber() + 1,
+          ]);
+          await network.provider.send("evm_mine", []);
+          await raffle.performUpkeep([]);
+          const raffleState = await raffle.getRaffleState();
+          const { upkeepNeeded } = await raffle.callStatic.checkUpkeep([]);
+
+          assert.equal(raffleState, "1");
+          assert.equal(upkeepNeeded, false);
+        });
       });
     });

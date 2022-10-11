@@ -1,12 +1,7 @@
 const { assert, expect } = require("chai");
 const { network, getNamedAccounts, deployments, ethers } = require("hardhat");
-const {
-  isCallTrace,
-} = require("hardhat/internal/hardhat-network/stack-traces/message-trace");
-const {
-  deploymentChains,
-  networkConfig,
-} = require("../../helper-harhat-config");
+
+const { deploymentChains } = require("../../helper-harhat-config");
 
 deploymentChains.includes(network.name)
   ? describe.skip
@@ -15,18 +10,16 @@ deploymentChains.includes(network.name)
       //   const chainId = network.config.chainId;
       beforeEach(async function () {
         deployer = (await getNamedAccounts()).deployer;
-        await deployments.fixture(["all"]);
         raffle = await ethers.getContract("Raffle", deployer);
-
-        const subscriptionId = await raffle.getSubscriptionId();
-        // await vrfcoordinatorV2Mock.addConsumer(subscriptionId, raffle.address);
         enteranceFee = await raffle.getEnteranceFee();
         interval = await raffle.getInterval();
       });
       describe("fulfillRandomWords", () => {
         it("works with live Chainlink VRF, We get a random winner", async () => {
+          console.log("Setting up test...");
           const startTimeStamp = await raffle.getLatestTimeStamp();
           const accounts = await ethers.getSigners();
+          console.log("Setting up listner...");
           await new Promise(async (resolve, reject) => {
             raffle.once("WinnerPicked", async () => {
               console.log("WinnerPicked event fired!");
@@ -44,13 +37,14 @@ deploymentChains.includes(network.name)
                   winnerBalance.toString(),
                   winnerStartBalance.add(enteranceFee).toString()
                 );
-                assert(startTimeStamp < endingTimeStamp);
+                assert(endingTimeStamp > startTimeStamp);
                 resolve();
               } catch (err) {
                 console.log(err);
                 reject(err);
               }
-              await raffle.enterRaffle({ value: enteranceFee });
+              console.log("Entering Raffle...");
+
               const tx = await raffle.enterRaffle({ value: enteranceFee });
               await tx.wait(1);
               console.log("Ok, time to wait...");

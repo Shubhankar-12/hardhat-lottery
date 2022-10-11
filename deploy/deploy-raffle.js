@@ -2,9 +2,9 @@ const { network, ethers } = require("hardhat");
 const { deploymentChains, networkConfig } = require("../helper-harhat-config");
 const { verify } = require("../utils/verify");
 
-const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("2");
+const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("1");
 
-module.exports = async function ({ getNamedAccounts, deployments }) {
+module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
   const chainId = network.config.chainId;
@@ -22,14 +22,14 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
       VRF_SUB_FUND_AMOUNT
     );
   } else {
-    vrfCoordinatorV2Address = networkConfig[chainId];
+    vrfCoordinatorV2Address = networkConfig[chainId]["vrfCoordinatorV2"];
     subscriptionId = networkConfig[chainId]["subscriptionId"];
   }
   const enteranceFee = networkConfig[chainId]["enteranceFee"];
   const gasLane = networkConfig[chainId]["gasLane"];
   const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"];
   const interval = networkConfig[chainId]["interval"];
-  const arg = [
+  const argument = [
     vrfCoordinatorV2Address,
     enteranceFee,
     gasLane,
@@ -39,7 +39,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
   ];
   const raffle = await deploy("Raffle", {
     from: deployer,
-    args: arg,
+    args: argument,
     log: true,
     waitConfirmations: network.config.blockConfirmations || 1,
   });
@@ -48,7 +48,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     process.env.ETHERSCAN_API_KEY
   ) {
     log("Verifying...");
-    await verify(raffle.address, arg);
+    await verify(raffle.address, argument);
     log("----------------------------------------------------");
   }
 };

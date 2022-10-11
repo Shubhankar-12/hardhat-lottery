@@ -19,10 +19,16 @@ module.exports = {
       blockConfirmations: 1,
     },
     goerli: {
-      chainId: 5,
-      accounts: [PRIVATE_KEY],
       url: GOERLI_RPC_URL,
-      blockConfirmations: 6,
+      accounts: [PRIVATE_KEY],
+      chainId: 5,
+      saveDeployments: true,
+    },
+  },
+  etherscan: {
+    // yarn hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
+    apiKey: {
+      goerli: ETHERSCAN_API_KEY,
     },
   },
   gasReporter: {

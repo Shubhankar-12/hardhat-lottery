@@ -23,7 +23,6 @@ deploymentChains.includes(network.name)
           await new Promise(async (resolve, reject) => {
             raffle.once("WinnerPicked", async () => {
               console.log("WinnerPicked event fired!");
-
               try {
                 const recentWinner = await raffle.getRecentWinner();
                 const raffleState = await raffle.getRaffleState();
@@ -45,8 +44,8 @@ deploymentChains.includes(network.name)
               }
               console.log("Entering Raffle...");
 
-              const tx = await raffle.enterRaffle({ value: enteranceFee });
-              await tx.wait(1);
+              await raffle.enterRaffle({ value: enteranceFee });
+              // await tx.wait(1);
               console.log("Ok, time to wait...");
               const winnerStartBalance = await accounts[0].getBalance();
             });

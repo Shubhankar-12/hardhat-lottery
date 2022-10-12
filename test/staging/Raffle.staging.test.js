@@ -31,7 +31,7 @@ deploymentChains.includes(network.name)
 
                 await expect(raffle.getPlayer(0)).to.be.reverted;
                 assert.equal(recentWinner.toString(), accounts[0].address);
-                assert.equal(raffleState.toString(), "0");
+                assert.equal(raffleState, 0);
                 assert.equal(
                   winnerBalance.toString(),
                   winnerStartBalance.add(enteranceFee).toString()
@@ -42,13 +42,12 @@ deploymentChains.includes(network.name)
                 console.log(err);
                 reject(err);
               }
-              console.log("Entering Raffle...");
-
-              await raffle.enterRaffle({ value: enteranceFee });
-              // await tx.wait(1);
-              console.log("Ok, time to wait...");
-              const winnerStartBalance = await accounts[0].getBalance();
             });
+            console.log("Entering Raffle...");
+            const tx = await raffle.enterRaffle({ value: enteranceFee });
+            await tx.wait(1);
+            console.log("Ok, time to wait...");
+            const winnerStartBalance = await accounts[0].getBalance();
           });
         });
       });

@@ -24,11 +24,11 @@ deploymentChains.includes(network.name)
             raffle.once("WinnerPicked", async () => {
               console.log("WinnerPicked event fired!");
               try {
+                console.log("Enters in the try block...");
                 const recentWinner = await raffle.getRecentWinner();
                 const raffleState = await raffle.getRaffleState();
                 const winnerBalance = await accounts[0].getBalance();
                 const endingTimeStamp = await raffle.getLatestTimeStamp();
-
                 await expect(raffle.getPlayer(0)).to.be.reverted;
                 assert.equal(recentWinner.toString(), accounts[0].address);
                 assert.equal(raffleState, 0);
